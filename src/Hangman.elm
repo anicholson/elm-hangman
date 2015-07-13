@@ -17,6 +17,9 @@ import Html.Events     exposing (..)
 import Html.Lazy       exposing (lazy, lazy2, lazy3)
 import Json.Decode as Json
 
+import Keyboard
+import Char
+
 import String exposing (toList)
 import Signal          exposing (Signal, Address)
 import Window
@@ -77,9 +80,21 @@ type Action
     = Guess Letter
     | Reset
 
+alreadyGuessed : List Letter -> Letter -> List Letter
+alreadyGuessed guesses newGuess =
+    let iGuess = Char.toUpper newGuess in
+    let notaLetter = \c -> Char.isDigit c in
+    if | List.member iGuess guesses -> guesses
+       | notaLetter iGuess          -> guesses
+       | otherwise                  -> iGuess :: guesses
+
 resolveGuess : Letter  -> Model -> Model
 resolveGuess letter model =
-    model
+    let updateGuesses    =  \model -> { model | guesses    <- alreadyGuessed model.guesses letter }
+        updateGuessCount =  \model -> { model | guessCount <- List.length model.guesses           }
+    in
+      model |> updateGuesses
+            |> updateGuessCount
 
 resolveModel : Model -> Model
 resolveModel model =
@@ -91,12 +106,8 @@ resolveModel model =
 update : Action -> Model -> Model
 update action model =
     resolveModel <| case action of
-      Reset -> initialModel "elephant"
-      Guess letter ->
-          { model |
-            guesses <- letter :: model.guesses
-          , guessCount <- model.guessCount + 1
-          }
+      Reset        -> initialModel "elephant"
+      Guess letter -> resolveGuess letter model
 
 guessList : List Letter -> String
 guessList guesses =
@@ -130,8 +141,13 @@ view address model =
 
 
 -- manage the model of our application over time
+
+guessedLetter = Signal.map (Char.fromCode >> Guess) Keyboard.presses
+
 model : Signal Model
-model = Signal.foldp update (initialModel "elephant")  actions.signal
+model =
+  let updates = Signal.merge guessedLetter actions.signal
+  in Signal.foldp update (initialModel "elephant")  updates
 
 actions : Signal.Mailbox Action
 actions =

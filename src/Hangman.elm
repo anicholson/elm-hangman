@@ -80,6 +80,21 @@ type Action
     = Guess Letter
     | Reset
 
+lettersMatch : (Letter, GuessedLetter) -> Bool
+lettersMatch pair =
+    case snd pair of
+        Nothing -> False
+        Just l  -> l == fst pair
+
+correctGuess : Model -> Letter -> Bool
+correctGuess model guess =
+    let letters = String.toList model.word in
+    List.member guess letters
+
+haveGuessedLetter : List Letter -> Letter -> Bool
+haveGuessedLetter guesses letter =
+    List.member letter guesses
+
 alreadyGuessed : List Letter -> Letter -> List Letter
 alreadyGuessed guesses newGuess =
     let iGuess = Char.toUpper newGuess in
@@ -88,6 +103,28 @@ alreadyGuessed guesses newGuess =
        | notaLetter iGuess          -> guesses
        | otherwise                  -> iGuess :: guesses
 
+checkWord : Model -> List GuessedLetter
+checkWord model =
+  checkLetters (String.toList model.word) model.guesses
+
+checkLetters : List Letter -> List Letter  -> List GuessedLetter
+checkLetters word guesses  =
+    let currentLetter        = List.head word in
+      let guessedCurrentLetter = case currentLetter of
+                                   Nothing -> False
+                                   Just l  -> List.member l guesses
+          result               = if guessedCurrentLetter then currentLetter else Nothing
+    in
+        case (List.tail word)  of
+        Nothing   -> [Just currentLetter]
+        Just rest -> (Just currentLetter) :: (checkLetters rest guesses)
+
+updateCorrectGuesses : Model -> Model
+updateCorrectGuesses model =
+    let wordAsList = String.toList model.word
+
+    in model
+
 resolveGuess : Letter  -> Model -> Model
 resolveGuess letter model =
     let updateGuesses    =  \model -> { model | guesses    <- alreadyGuessed model.guesses letter }
@@ -95,11 +132,15 @@ resolveGuess letter model =
     in
       model |> updateGuesses
             |> updateGuessCount
+            |> updateCorrectGuesses
 
 resolveModel : Model -> Model
 resolveModel model =
-    let correctlyGuessed = (\model -> zip (String.toList model.word)  model.correctGuesses)
-    in model
+    let wordGuessPairs   = zip (String.toList model.word)  model.correctGuesses
+        correctlyGuessed = List.all lettersMatch wordGuessPairs
+        newGameState     = if correctlyGuessed then Won else Playing
+    in { model | gameStatus <- newGameState }
+
 
 
 {-| Updates the state of a Model given an action taken -}

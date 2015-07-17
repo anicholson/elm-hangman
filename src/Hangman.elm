@@ -116,14 +116,12 @@ checkLetters word guesses  =
           result               = if guessedCurrentLetter then currentLetter else Nothing
     in
         case (List.tail word)  of
-        Nothing   -> [Just currentLetter]
-        Just rest -> (Just currentLetter) :: (checkLetters rest guesses)
+          Nothing   -> [currentLetter]
+          Just rest -> (result) :: (checkLetters rest guesses)
 
 updateCorrectGuesses : Model -> Model
 updateCorrectGuesses model =
-    let wordAsList = String.toList model.word
-
-    in model
+    { model | correctGuesses <- checkWord model }
 
 resolveGuess : Letter  -> Model -> Model
 resolveGuess letter model =
@@ -147,7 +145,7 @@ resolveModel model =
 update : Action -> Model -> Model
 update action model =
     resolveModel <| case action of
-      Reset        -> initialModel "elephant"
+      Reset        -> initialModel "ELEPHANT"
       Guess letter -> resolveGuess letter model
 
 guessList : List Letter -> String
@@ -188,7 +186,7 @@ guessedLetter = Signal.map (Char.fromCode >> Guess) Keyboard.presses
 model : Signal Model
 model =
   let updates = Signal.merge guessedLetter actions.signal
-  in Signal.foldp update (initialModel "elephant")  updates
+  in Signal.foldp update (initialModel "ELEPHANT")  updates
 
 actions : Signal.Mailbox Action
 actions =

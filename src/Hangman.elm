@@ -160,7 +160,7 @@ wordInProgress letters =
                       case guess of
                         Just l   -> l
                         Nothing  -> '_'
-        letterToLi = \letter -> li [] [text (toString letter)]
+        letterToLi = \letter -> li [] [text (String.fromChar letter)]
     in
       ul [class "word-space"] (List.map (letterToLi << guessToChar) letters)
 

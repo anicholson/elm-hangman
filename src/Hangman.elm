@@ -20,6 +20,8 @@ import Json.Decode as Json
 import Keyboard
 import Char
 
+import Debug
+
 import String exposing (toList)
 import Signal          exposing (Signal, Address)
 import Window
@@ -30,7 +32,7 @@ import Window
 type GameStatus = Won | Lost | Playing
 
 {-|-}
-type alias GuessedLetter = Maybe Letter
+type GuessedLetter = Guessed Letter | Unguessed
 
 {-|-}
 type alias Letter = Char
@@ -61,7 +63,7 @@ initialModel : String -> Model
 initialModel wordToGuess =
     {
       word           = wordToGuess
-    , correctGuesses = List.repeat (String.length wordToGuess) Nothing
+    , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
     , guessCount     = 0
     , guesses        = []
     , guessed        = False
@@ -83,8 +85,8 @@ type Action
 lettersMatch : (Letter, GuessedLetter) -> Bool
 lettersMatch pair =
     case snd pair of
-        Nothing -> False
-        Just l  -> l == fst pair
+        Unguessed -> False
+        Guessed  l  -> l == fst pair
 
 correctGuess : Model -> Letter -> Bool
 correctGuess model guess =
@@ -105,7 +107,10 @@ alreadyGuessed guesses newGuess =
 
 checkWord : Model -> List GuessedLetter
 checkWord model =
-  checkLetters (String.toList model.word) model.guesses
+    let wordLength        = String.length model.word
+        newCorrectGuesses = checkLetters (String.toList model.word) model.guesses
+    in
+      List.take wordLength newCorrectGuesses
 
 checkLetters : List Letter -> List Letter  -> List GuessedLetter
 checkLetters word guesses  =
@@ -113,11 +118,14 @@ checkLetters word guesses  =
       let guessedCurrentLetter = case currentLetter of
                                    Nothing -> False
                                    Just l  -> List.member l guesses
-          result               = if guessedCurrentLetter then currentLetter else Nothing
+          unTaggedLetter       = case currentLetter of
+                                   Just l  -> l
+                                   Nothing -> ' '
+          result               = if guessedCurrentLetter then Guessed unTaggedLetter else Unguessed
     in
         case (List.tail word)  of
-          Nothing   -> [currentLetter]
-          Just rest -> (result) :: (checkLetters rest guesses)
+          Nothing   -> Debug.log "No more letters" [result]
+          Just rest -> Debug.log "Keep going" ((result) :: (checkLetters rest guesses))
 
 updateCorrectGuesses : Model -> Model
 updateCorrectGuesses model =
@@ -158,8 +166,8 @@ wordInProgress : List GuessedLetter ->  Html.Html
 wordInProgress letters =
     let guessToChar = \guess ->
                       case guess of
-                        Just l   -> l
-                        Nothing  -> '_'
+                        Guessed l   -> l
+                        Unguessed  -> '_'
         letterToLi = \letter -> li [] [text (String.fromChar letter)]
     in
       ul [class "word-space"] (List.map (letterToLi << guessToChar) letters)

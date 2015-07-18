@@ -3,6 +3,7 @@ body {
 }
 
 ul.word-space {
+  font-family: 'Anonymous Pro', monospace;
   font-size: 64px;
   display: inline-block;
 

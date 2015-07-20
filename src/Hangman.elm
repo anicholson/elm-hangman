@@ -123,8 +123,8 @@ checkLetters word guesses  =
           result               = if guessedCurrentLetter then Guessed unTaggedLetter else Unguessed
     in
         case (List.tail word)  of
-          Nothing   -> Debug.log "No more letters" [result]
-          Just rest -> Debug.log "Keep going" ((result) :: (checkLetters rest guesses))
+          Nothing   -> [result]
+          Just rest -> (result) :: (checkLetters rest guesses)
 
 updateCorrectGuesses : Model -> Model
 updateCorrectGuesses model =
@@ -137,7 +137,6 @@ updateGuessCount letter model =
         same           = model.guessCount
         oneLess        = model.guessCount - 1
         newValue       = if (alreadyGuessed || correctGuess) then same else oneLess
-        pickSame       = Debug.log "already / correct / newValue" (alreadyGuessed, correctGuess, newValue)
     in
       { model | guessCount <- newValue }
 

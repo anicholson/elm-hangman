@@ -64,7 +64,7 @@ initialModel wordToGuess =
     {
       word           = wordToGuess
     , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
-    , guessCount     = 0
+    , guessCount     = 6
     , guesses        = []
     , guessed        = False
     , gameStatus     = Playing }
@@ -99,11 +99,10 @@ haveGuessedLetter guesses letter =
 
 alreadyGuessed : List Letter -> Letter -> List Letter
 alreadyGuessed guesses newGuess =
-    let iGuess = Char.toUpper newGuess in
     let notaLetter = \c -> Char.isDigit c in
-    if | List.member iGuess guesses -> guesses
-       | notaLetter iGuess          -> guesses
-       | otherwise                  -> iGuess :: guesses
+    if | List.member newGuess guesses -> guesses
+       | notaLetter newGuess          -> guesses
+       | otherwise                    -> newGuess :: guesses
 
 checkWord : Model -> List GuessedLetter
 checkWord model =
@@ -131,14 +130,26 @@ updateCorrectGuesses : Model -> Model
 updateCorrectGuesses model =
     { model | correctGuesses <- checkWord model }
 
+updateGuessCount : Letter -> Model -> Model
+updateGuessCount letter model =
+    let alreadyGuessed = List.member letter model.guesses
+        correctGuess   = List.member letter (String.toList model.word)
+        same           = model.guessCount
+        oneLess        = model.guessCount - 1
+        newValue       = if (alreadyGuessed || correctGuess) then same else oneLess
+        pickSame       = Debug.log "already / correct / newValue" (alreadyGuessed, correctGuess, newValue)
+    in
+      { model | guessCount <- newValue }
+
 resolveGuess : Letter  -> Model -> Model
 resolveGuess letter model =
-    let updateGuesses    =  \model -> { model | guesses    <- alreadyGuessed model.guesses letter }
-        updateGuessCount =  \model -> { model | guessCount <- List.length model.guesses           }
-    in
-      model |> updateGuesses
-            |> updateGuessCount
-            |> updateCorrectGuesses
+    let iGuess         = Char.toUpper letter
+        duplicateGuess =  List.member iGuess model.guesses in
+      let   updateGuesses    =  \model -> { model | guesses  <- alreadyGuessed model.guesses iGuess }
+      in
+        model |> updateGuessCount iGuess
+              |> updateGuesses
+              |> updateCorrectGuesses
 
 resolveModel : Model -> Model
 resolveModel model =
@@ -167,7 +178,7 @@ wordInProgress letters =
     let guessToChar = \guess ->
                       case guess of
                         Guessed l   -> l
-                        Unguessed  -> '_'
+                        Unguessed   -> '_'
         letterToLi = \letter -> li [] [text (String.fromChar letter)]
     in
       ul [class "word-space"] (List.map (letterToLi << guessToChar) letters)
@@ -176,15 +187,16 @@ wordInProgress letters =
 
 view : Signal.Address Action -> Model -> Html.Html
 view address model =
-    div [id "hangman"] [
-             div [id "word"] [(wordInProgress model.correctGuesses)]
-            , div [id "guessing"] [
-                       p [] [
-                        text "Guessed letters: "
-                       , text (guessList model.guesses)],
-                       p [] [
-                        text "# guesses: "
-                       , text (toString model.guessCount) ]]]
+    case model.gameStatus of
+      otherwise ->    div [id "hangman"] [
+                           div [id "word"] [(wordInProgress model.correctGuesses)]
+                          , div [id "guessing"] [
+                                     p [] [
+                                      text "Guessed letters: "
+                                     , text (guessList model.guesses)],
+                                     p [] [
+                                      text "Incorrect guesses remaining: "
+                                     , text (toString model.guessCount) ]]]
 
 
 -- manage the model of our application over time

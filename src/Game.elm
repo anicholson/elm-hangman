@@ -1,4 +1,4 @@
-module Game (Model, Letter, GuessedLetter, initialModel, Action, update) where
+module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Action(Guess, Reset), update) where
 
 {-| A hangman game in Elm.
 
@@ -10,7 +10,6 @@ module Game (Model, Letter, GuessedLetter, initialModel, Action, update) where
 @docs update
 
 -}
-
 
 import Char
 import String

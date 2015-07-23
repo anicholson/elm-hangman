@@ -11,9 +11,13 @@
     </script>
   </head>
   <body>
+    <div id="game"></div>
+
     <script type="text/javascript">
       ready(function() {
-        Elm.fullscreen(Elm.Hangman)
+      var gameContainer = document.getElementById('game');
+
+        Elm.embed(Elm.Game, gameContainer);
       });
     </script>
   </body>

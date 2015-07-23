@@ -1,4 +1,4 @@
-module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Action(Guess, Reset), update) where
+module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Action(Guess, Reset), GameStatus(Won, Lost, Playing), update) where
 
 {-| A hangman game in Elm.
 
@@ -8,7 +8,7 @@ module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Act
 @docs Action
 @docs initialModel
 @docs update
-
+@docs GameStatus
 -}
 
 import Char
@@ -16,10 +16,16 @@ import String
 
 
 ---- MODEL ----
-{-|-}
-type GameStatus = Won | Lost | Playing
+{-|
+
+The states the Game could be in at any given time.
+None is when no game has been played yet.
+
+-}
+type GameStatus = Won | Lost | Playing | None
 
 {-|
+
   Represents a letter in the player's view of the game. It may be guessed, in which case
   the value is known, or it may be Unguessed, when it it not.
 
@@ -33,7 +39,7 @@ type alias Letter = Char
 
   word           : The word to guess.
   correctGuesses : If a letter's been guessed, show it, otherwise Nothing
-  guessCount     : Number of Guesses made
+  guessCount     : Number of incorrect guesses remaining before the game is Lost
   guesses        : All the letters that have been guessed
   gameStatus     : Status of the game.
 

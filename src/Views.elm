@@ -1,6 +1,6 @@
 module Views where
 
-import Game exposing (Action, Letter, GuessedLetter(Guessed, Unguessed), Model)
+import Game exposing (Action, Letter, GuessedLetter(Guessed, Unguessed), Model, GameStatus(Won, Lost, Playing))
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -33,15 +33,29 @@ wordInProgress letters =
 
 {-| Takes Signalled Actions and a Model and keeps the view of that model in sync. -}
 
+wonView : Model -> Html.Html
+wonView model = div [ id "hangman" ] [
+                 header [ id "congratulation" ] [ h1 [] [ text "Congratulations!" ]]
+                , div [ class "guessesRemaining" ]  [ text <| "You guessed the word with " ++ toString(model.guessCount)  ++ " guesses remaining. Well done!" ]
+                ]
+
+playingView : Model -> Html.Html
+playingView model =
+   div [id "hangman"] [
+            div [id "word"] [(wordInProgress model.correctGuesses)]
+           , div [id "guessing"] [
+                      p [] [
+                       text "Guessed letters: "
+                      , text (guessList model.guesses)],
+                      p [] [
+                       text "Incorrect guesses remaining: "
+                      , text (toString model.guessCount) ]]]
+
+
 view : Signal.Address Action -> Model -> Html.Html
 view address model =
-    case model.gameStatus of
-      otherwise ->    div [id "hangman"] [
-                           div [id "word"] [(wordInProgress model.correctGuesses)]
-                          , div [id "guessing"] [
-                                     p [] [
-                                      text "Guessed letters: "
-                                     , text (guessList model.guesses)],
-                                     p [] [
-                                      text "Incorrect guesses remaining: "
-                                     , text (toString model.guessCount) ]]]
+    let newView = case model.gameStatus of
+                 Won       -> wonView
+                 otherwise -> playingView
+    in
+      newView model

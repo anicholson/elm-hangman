@@ -1,4 +1,4 @@
-module Hangman (Model, Letter, initialModel, Action, update, view, main) where
+module Game (Model, Letter, initialModel, Action, update, view, main) where
 
 {-| A hangman game in Elm.
 

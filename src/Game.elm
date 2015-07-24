@@ -50,7 +50,6 @@ type alias Model = {
     , correctGuesses : List GuessedLetter
     , guessCount     : Int
     , guesses        : List Letter
-    , guessed        : Bool
     , gameStatus     : GameStatus
     }
 
@@ -64,7 +63,6 @@ initialModel wordToGuess =
     , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
     , guessCount     = 6
     , guesses        = []
-    , guessed        = False
     , gameStatus     = Playing }
 
 ---- UPDATE ----

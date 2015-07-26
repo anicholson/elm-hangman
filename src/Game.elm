@@ -150,9 +150,11 @@ resolveModel : Model -> Model
 resolveModel model =
     let wordGuessPairs   = zip (String.toList model.word)  model.correctGuesses
         correctlyGuessed = List.all lettersMatch wordGuessPairs
-        newGameState     = if correctlyGuessed then Won else Playing
+        noMoreGuesses    = model.guessCount == 0
+        newGameState     = if | correctlyGuessed -> Won
+                              | noMoreGuesses    -> Lost
+                              | otherwise        -> Playing
     in { model | gameStatus <- newGameState }
-
 
 
 {-| Updates the state of a Model given an action taken -}

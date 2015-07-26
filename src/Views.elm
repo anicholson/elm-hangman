@@ -33,10 +33,17 @@ wordInProgress letters =
 
 {-| Takes Signalled Actions and a Model and keeps the view of that model in sync. -}
 
+lostView : Model -> Html.Html
+lostView model = div [ id "hangman" ] [
+                  header [ id "condolence" ] [ h1 [] [ text "Bad luck!" ]]
+                 , p [ class "message" ] [ text "You ran out of guesses. The word to guess was:" ]
+                 , p [ class "theActualWord" ] [ text model.word ]]
+
+
 wonView : Model -> Html.Html
 wonView model = div [ id "hangman" ] [
                  header [ id "congratulation" ] [ h1 [] [ text "Congratulations!" ]]
-                , div [ class "guessesRemaining" ]  [ text <| "You guessed the word with " ++ toString(model.guessCount)  ++ " guesses remaining. Well done!" ]
+                , p [ class "message" ]  [ text <| "You guessed the word with " ++ toString(model.guessCount)  ++ " guesses remaining. Well done!" ]
                 ]
 
 playingView : Model -> Html.Html
@@ -56,6 +63,7 @@ view : Signal.Address Action -> Model -> Html.Html
 view address model =
     let newView = case model.gameStatus of
                  Won       -> wonView
+                 Lost      -> lostView
                  otherwise -> playingView
     in
       newView model

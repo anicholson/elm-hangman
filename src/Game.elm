@@ -13,7 +13,8 @@ module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Act
 
 import Char
 import String
-
+import Random
+import Words
 
 ---- MODEL ----
 {-|
@@ -45,25 +46,35 @@ type alias Letter = Char
 
 -}
 
+
 type alias Model = {
       word           : String
     , correctGuesses : List GuessedLetter
     , guessCount     : Int
     , guesses        : List Letter
     , gameStatus     : GameStatus
+    , nextSeed       : Random.Seed
     }
+
 
 {-| Create an instance of a Model.
   @param wordToGuess: String = the word the player has to guess.
 -}
-initialModel : String -> Model
-initialModel wordToGuess =
+initialModel : Int -> Model
+initialModel seed =
+    let generator   = Random.int 0 Words.wordCount
+        initSeed    = Random.initialSeed seed
+        firstWordIndex = Random.generate generator initSeed
+        wordToGuess = Words.getWord <| fst firstWordIndex
+    in
     {
       word           = wordToGuess
     , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
     , guessCount     = 6
     , guesses        = []
-    , gameStatus     = Playing }
+    , gameStatus     = Playing
+    , nextSeed       = initSeed
+    }
 
 ---- UPDATE ----
 
@@ -161,5 +172,5 @@ resolveModel model =
 update : Action -> Model -> Model
 update action model =
     resolveModel <| case action of
-      Reset        -> initialModel "ELEPHANT"
+      Reset        -> initialModel 5
       Guess letter -> resolveGuess letter model

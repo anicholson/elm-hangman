@@ -1,4 +1,4 @@
-module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Action(Guess, Reset), GameStatus(Won, Lost, Playing), update) where
+module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Action(Guess, Reset, NoOp), GameStatus(Won, Lost, Playing), update) where
 
 {-| A hangman game in Elm.
 
@@ -88,6 +88,7 @@ zip = List.map2 (,)
 type Action
     = Guess Letter
     | Reset
+    | NoOp
 
 lettersMatch : (Letter, GuessedLetter) -> Bool
 lettersMatch pair =
@@ -174,3 +175,4 @@ update action model =
     resolveModel <| case action of
       Reset        -> initialModel 5
       Guess letter -> resolveGuess letter model
+      otherwise    -> model

@@ -22,7 +22,7 @@ model =
 
 actions : Signal.Mailbox Game.Action
 actions =
-    Signal.mailbox Game.Reset
+    Signal.mailbox Game.NoOp
 
 {-| Bootstrap the app! -}
 main : Signal Html

@@ -64,6 +64,7 @@ view address model =
     let newView = case model.gameStatus of
                  Won       -> wonView
                  Lost      -> lostView
-                 otherwise -> playingView
+                 Playing   -> playingView
+                 otherwise -> \m -> text "not Playing"
     in
       newView model

@@ -16,6 +16,8 @@ import String
 import Random
 import Words
 
+import Debug exposing(..)
+
 ---- MODEL ----
 {-|
 
@@ -62,10 +64,13 @@ type alias Model = {
 -}
 initialModel : Int -> Model
 initialModel seed =
-    let generator   = Random.int 0 Words.wordCount
-        initSeed    = Random.initialSeed seed
-        firstWordIndex = Random.generate generator initSeed
-        wordToGuess = Words.getWord <| fst firstWordIndex
+    let wordCount      = Debug.log "WordCount " Words.wordCount
+        s              = Debug.log "PassedSeed: " seed
+        generator      = Debug.log "Generator" (Random.int 1 Words.wordCount)
+        initSeed       = Debug.log "initSeed"  (Random.initialSeed seed)
+        firstWordIndex = Debug.log "FWI" (Random.generate generator initSeed)
+        f              = Debug.log "f" fst firstWordIndex
+        wordToGuess    = "ELEPHANT" {- Words.getWord <| fst firstWordIndex -}
     in
     {
       word           = wordToGuess

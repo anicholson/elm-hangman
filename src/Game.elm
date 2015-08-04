@@ -70,7 +70,7 @@ initialModel seed =
         initSeed       = Debug.log "initSeed"  (Random.initialSeed seed)
         firstWordIndex = Debug.log "FWI" (Random.generate generator initSeed)
         f              = Debug.log "f" fst firstWordIndex
-        wordToGuess    = "ELEPHANT" {- Words.getWord <| fst firstWordIndex -}
+        wordToGuess    = Words.getWord <| fst firstWordIndex
     in
     {
       word           = wordToGuess

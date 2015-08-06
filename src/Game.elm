@@ -16,7 +16,6 @@ import String
 import Random
 import Words
 
-import Debug exposing(..)
 
 ---- MODEL ----
 {-|

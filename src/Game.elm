@@ -25,7 +25,10 @@ The states the Game could be in at any given time.
 None is when no game has been played yet.
 
 -}
-type GameStatus = Won | Lost | Playing | None
+type GameStatus = Won
+                | Lost
+                | Playing
+                | None
 
 {-|
 
@@ -33,7 +36,8 @@ type GameStatus = Won | Lost | Playing | None
   the value is known, or it may be Unguessed, when it it not.
 
 -}
-type GuessedLetter = Guessed Letter | Unguessed
+type GuessedLetter = Guessed Letter
+                   | Unguessed
 
 {-|-}
 type alias Letter = Char
@@ -64,13 +68,11 @@ type alias Model = {
 -}
 initialModel : Int -> Model
 initialModel seed =
-    let wordCount      = Debug.log "WordCount " Words.wordCount
-        s              = Debug.log "PassedSeed: " seed
-        generator      = Debug.log "Generator" (Random.int 1 Words.wordCount)
-        initSeed       = Debug.log "initSeed"  (Random.initialSeed seed)
-        firstWordIndex = Debug.log "FWI" (Random.generate generator initSeed)
-        f              = Debug.log "f" fst firstWordIndex
-        wordToGuess    = Words.getWord <| fst firstWordIndex
+    let wordCount = Words.wordCount
+        generator = Random.int 1 Words.wordCount
+        initSeed = Random.initialSeed seed
+        firstWordIndex = Random.generate generator initSeed
+        wordToGuess = Words.getWord <| fst firstWordIndex
     in
     {
       word           = wordToGuess
@@ -81,6 +83,7 @@ initialModel seed =
     , nextSeed       = initSeed
     }
 
+
 ---- UPDATE ----
 
 -- A description of the kinds of actions that can be performed on the model of
@@ -89,33 +92,41 @@ initialModel seed =
 zip : List a -> List b -> List (a,b)
 zip = List.map2 (,)
 
+
 {-| The kinds of action that can be taken. Guess a letter, or reset the game -}
-type Action
-    = Guess Letter
-    | Reset
-    | NoOp
+type Action  = Guess Letter
+             | Reset
+             | NoOp
 
 lettersMatch : (Letter, GuessedLetter) -> Bool
 lettersMatch pair =
     case snd pair of
         Unguessed -> False
+
         Guessed  l  -> l == fst pair
+
 
 correctGuess : Model -> Letter -> Bool
 correctGuess model guess =
-    let letters = String.toList model.word in
-    List.member guess letters
+    let
+      letters = String.toList model.word
+    in
+      List.member guess letters
+
 
 haveGuessedLetter : List Letter -> Letter -> Bool
 haveGuessedLetter guesses letter =
     List.member letter guesses
 
+
 alreadyGuessed : List Letter -> Letter -> List Letter
 alreadyGuessed guesses newGuess =
-    let notaLetter = \c -> Char.isDigit c in
-    if | List.member newGuess guesses -> guesses
-       | notaLetter newGuess          -> guesses
-       | otherwise                    -> newGuess :: guesses
+    let
+        notaLetter = \c -> Char.isDigit c
+    in
+      if | List.member newGuess guesses -> guesses
+         | notaLetter newGuess          -> guesses
+         | otherwise                    -> newGuess :: guesses
 
 checkWord : Model -> List GuessedLetter
 checkWord model =
@@ -126,22 +137,33 @@ checkWord model =
 
 checkLetters : List Letter -> List Letter  -> List GuessedLetter
 checkLetters word guesses  =
-    let currentLetter        = List.head word in
-      let guessedCurrentLetter = case currentLetter of
-                                   Nothing -> False
-                                   Just l  -> List.member l guesses
-          unTaggedLetter       = case currentLetter of
-                                   Just l  -> l
-                                   Nothing -> ' '
-          result               = if guessedCurrentLetter then Guessed unTaggedLetter else Unguessed
+    let
+        currentLetter        = List.head word
     in
+      let
+          guessedCurrentLetter = case currentLetter of
+                                   Nothing -> False
+
+                                   Just l  -> List.member l guesses
+
+          unTaggedLetter = case currentLetter of
+                             Just l  -> l
+
+                             Nothing -> ' '
+
+          result = if | guessedCurrentLetter -> Guessed  unTaggedLetter
+                      | otherwise -> Unguessed
+      in
         case (List.tail word)  of
           Nothing   -> [result]
+
           Just rest -> (result) :: (checkLetters rest guesses)
+
 
 updateCorrectGuesses : Model -> Model
 updateCorrectGuesses model =
     { model | correctGuesses <- checkWord model }
+
 
 updateGuessCount : Letter -> Model -> Model
 updateGuessCount letter model =
@@ -153,15 +175,20 @@ updateGuessCount letter model =
     in
       { model | guessCount <- newValue }
 
+
 resolveGuess : Letter  -> Model -> Model
 resolveGuess letter model =
-    let iGuess         = Char.toUpper letter
-        duplicateGuess =  List.member iGuess model.guesses in
-      let   updateGuesses    =  \model -> { model | guesses  <- alreadyGuessed model.guesses iGuess }
+    let
+        iGuess         = Char.toUpper letter
+        duplicateGuess =  List.member iGuess model.guesses
+    in
+      let
+          updateGuesses    =  \model -> { model | guesses  <- alreadyGuessed model.guesses iGuess }
       in
         model |> updateGuessCount iGuess
               |> updateGuesses
               |> updateCorrectGuesses
+
 
 resolveModel : Model -> Model
 resolveModel model =

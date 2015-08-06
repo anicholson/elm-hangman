@@ -12,7 +12,7 @@ import Html exposing (Html)
 
 port initialSeed : Int
 
-
+guessedLetter : Signal Game.Action
 guessedLetter = Signal.map (Char.fromCode >> Game.Guess) Keyboard.presses
 
 

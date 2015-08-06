@@ -55,7 +55,7 @@ type alias Letter = Char
 type alias Model = {
       word           : String
     , correctGuesses : List GuessedLetter
-    , guessCount     : Int
+    , guessesLeft    : Int
     , guesses        : List Letter
     , gameStatus     : GameStatus
     , nextSeed       : Random.Seed
@@ -76,7 +76,7 @@ initialModel seed =
     {
       word           = wordToGuess
     , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
-    , guessCount     = 6
+    , guessesLeft    = 6
     , guesses        = []
     , gameStatus     = Playing
     , nextSeed       = initSeed
@@ -98,11 +98,11 @@ type Action  = Guess Letter
              | NoOp
 
 lettersMatch : (Letter, GuessedLetter) -> Bool
-lettersMatch pair =
-    case snd pair of
+lettersMatch (letter, guessedLetter) =
+    case guessedLetter of
         Unguessed -> False
 
-        Guessed  l  -> l == fst pair
+        Guessed  l  -> l == letter
 
 
 correctGuess : Model -> Letter -> Bool
@@ -164,15 +164,14 @@ updateCorrectGuesses model =
     { model | correctGuesses <- checkWord model }
 
 
-updateGuessCount : Letter -> Model -> Model
-updateGuessCount letter model =
+updateGuessesLeft : Letter -> Model -> Model
+updateGuessesLeft letter model =
     let alreadyGuessed = List.member letter model.guesses
         correctGuess   = List.member letter (String.toList model.word)
-        same           = model.guessCount
-        oneLess        = model.guessCount - 1
-        newValue       = if (alreadyGuessed || correctGuess) then same else oneLess
+        same           = model.guessesLeft
+        oneLess        = model.guessesLeft - 1
     in
-      { model | guessCount <- newValue }
+      { model | guessesLeft <- if (alreadyGuessed || correctGuess) then same else oneLess }
 
 
 resolveGuess : Letter  -> Model -> Model
@@ -184,7 +183,7 @@ resolveGuess letter model =
       let
           updateGuesses    =  \model -> { model | guesses  <- alreadyGuessed model.guesses iGuess }
       in
-        model |> updateGuessCount iGuess
+        model |> updateGuessesLeft iGuess
               |> updateGuesses
               |> updateCorrectGuesses
 
@@ -193,7 +192,7 @@ resolveModel : Model -> Model
 resolveModel model =
     let wordGuessPairs   = zip (String.toList model.word)  model.correctGuesses
         correctlyGuessed = List.all lettersMatch wordGuessPairs
-        noMoreGuesses    = model.guessCount == 0
+        noMoreGuesses    = model.guessesLeft == 0
         newGameState     = if | correctlyGuessed -> Won
                               | noMoreGuesses    -> Lost
                               | otherwise        -> Playing

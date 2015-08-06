@@ -4,11 +4,7 @@ import Game exposing (Action, Letter, GuessedLetter(..), Model, GameStatus(..))
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import Html.Lazy exposing (lazy, lazy2, lazy3)
 import String
-import Json.Decode as Json
-import Keyboard
 
 import Signal
 
@@ -46,7 +42,7 @@ lostView model = div [ id "hangman" ] [
 wonView : Model -> Html.Html
 wonView model = div [ id "hangman" ] [
                  header [ id "congratulation" ] [ h1 [] [ text "Congratulations!" ]]
-                , p [ class "message" ]  [ text <| "You guessed the word with " ++ toString(model.guessCount)  ++ " guesses remaining. Well done!" ]
+                , p [ class "message" ]  [ text <| "You guessed the word with " ++ toString(model.guessesLeft)  ++ " guesses remaining. Well done!" ]
                 ]
 
 
@@ -61,7 +57,7 @@ playingView model =
                       , text (guessList model.guesses)],
                       p [] [
                        text "Incorrect guesses remaining: "
-                      , text (toString model.guessCount) ]]]
+                      , text (toString model.guessesLeft) ]]]
 
 
 

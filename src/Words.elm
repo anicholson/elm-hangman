@@ -13,9 +13,9 @@ getWord : Int -> String
 getWord index =
     let i = Debug.log "Index: " index
     in
-      if | isNaN <| toFloat i -> crash "WTF"
-         | i < 0 -> crash "Negative!"
-         | otherwise -> let w = Debug.log "Word: " (Array.get i words) in
+      if isNaN <| toFloat i then crash "WTF"
+      else if i < 0 then crash "Negative!"
+      else let w = Debug.log "Word: " (Array.get i words) in
                         case w of
                           Just word -> toUpper word
                           Nothing   -> getWord <| i - 1

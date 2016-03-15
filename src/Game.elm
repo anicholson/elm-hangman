@@ -123,9 +123,9 @@ alreadyGuessed guesses newGuess =
     let
         notaLetter = \c -> Char.isDigit c
     in
-      if | List.member newGuess guesses -> guesses
-         | notaLetter newGuess          -> guesses
-         | otherwise                    -> newGuess :: guesses
+      if List.member newGuess guesses then guesses
+      else if notaLetter newGuess     then guesses
+      else                             newGuess :: guesses
 
 checkWord : Model -> List GuessedLetter
 checkWord model =
@@ -150,8 +150,7 @@ checkLetters word guesses  =
 
                              Nothing -> ' '
 
-          result = if | guessedCurrentLetter -> Guessed  unTaggedLetter
-                      | otherwise -> Unguessed
+          result = if guessedCurrentLetter then  Guessed unTaggedLetter else Unguessed
       in
         case (List.tail word)  of
           Nothing   -> [result]
@@ -161,7 +160,7 @@ checkLetters word guesses  =
 
 updateCorrectGuesses : Model -> Model
 updateCorrectGuesses model =
-    { model | correctGuesses <- checkWord model }
+    { model | correctGuesses = checkWord model }
 
 
 updateGuessesLeft : Letter -> Model -> Model
@@ -171,7 +170,7 @@ updateGuessesLeft letter model =
         same           = model.guessesLeft
         oneLess        = model.guessesLeft - 1
     in
-      { model | guessesLeft <- if (alreadyGuessed || correctGuess) then same else oneLess }
+      { model | guessesLeft = if (alreadyGuessed || correctGuess) then same else oneLess }
 
 
 resolveGuess : Letter  -> Model -> Model
@@ -181,7 +180,7 @@ resolveGuess letter model =
         duplicateGuess =  List.member iGuess model.guesses
     in
       let
-          updateGuesses    =  \model -> { model | guesses  <- alreadyGuessed model.guesses iGuess }
+          updateGuesses    =  \model -> { model | guesses  = alreadyGuessed model.guesses iGuess }
       in
         model |> updateGuessesLeft iGuess
               |> updateGuesses
@@ -193,10 +192,13 @@ resolveModel model =
     let wordGuessPairs   = zip (String.toList model.word)  model.correctGuesses
         correctlyGuessed = List.all lettersMatch wordGuessPairs
         noMoreGuesses    = model.guessesLeft == 0
-        newGameState     = if | correctlyGuessed -> Won
-                              | noMoreGuesses    -> Lost
-                              | otherwise        -> Playing
-    in { model | gameStatus <- newGameState }
+        newGameState     = if correctlyGuessed then
+                             Won
+                           else if noMoreGuesses then
+                             Lost
+                           else 
+                             Playing
+    in { model | gameStatus = newGameState }
 
 
 {-| Updates the state of a Model given an action taken -}

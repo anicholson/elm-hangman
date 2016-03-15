@@ -1,9 +1,0 @@
-{
-    "name": "Hangman in Elm",
-    "repository": "https://github.com/anicholson/elm-hangman",
-    "env": {
-        "BUILDPACK_URL": "https://github.com/srid/heroku-buildpack-elm.git",
-        "ELM_COMPILE": "elm make src/*.elm",
-        "ELM_STATIC_DIR": "."
-    }
-}

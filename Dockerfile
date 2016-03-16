@@ -14,7 +14,7 @@ WORKDIR /opt/app/src
 
 RUN elm package install -y
 
-RUN elm make
+RUN elm make src/App.elm --output ./elm.js
 
 RUN cp ./index.html ../build/
 RUN cp ./style.css ../build/

@@ -24,8 +24,6 @@ WORKDIR /opt/app
 
 RUN chown -R www build
 
-RUN chmod -R 0400 build
-
 RUN lighttpd -t -f src/lighttpd.conf
 
 EXPOSE 80

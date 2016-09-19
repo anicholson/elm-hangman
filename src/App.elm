@@ -1,35 +1,31 @@
-module App where
+port module App exposing (..)
 
-import Game
+import Game exposing (Msg(Guess, Reset))
 import Views exposing (view)
 
 import Char
 import Keyboard
-import Signal
-import Html exposing (Html)
+import Html.App as Application
+import Json.Decode exposing (int)
 
 -- manage the model of our application over time
 
-port initialSeed : Int
+port initialSeed : (Int -> msg) -> Sub msg
 
-guessedLetter : Signal Game.Action
-guessedLetter = Signal.map (Char.fromCode >> Game.Guess) Keyboard.presses
+guessedLetter : Keyboard.KeyCode -> Msg
+guessedLetter code = Guess (Char.fromCode code)
 
-
-model : Signal Game.Model
-model =
-  let
-    updates = Signal.merge guessedLetter actions.signal
-  in
-    Signal.foldp Game.update (Game.initialModel initialSeed)  updates
-
-
-actions : Signal.Mailbox Game.Action
-actions =
-    Signal.mailbox Game.NoOp
-
+subscriptions model =
+  Sub.batch [
+         Keyboard.presses guessedLetter
+       , initialSeed Reset
+       ]
 
 {-| Bootstrap the app! -}
-main : Signal Html
 main =
-    Signal.map (view actions.address) model
+  Application.program
+    { init = (Game.initialModel, Cmd.none)
+    , view = view
+    , update = Game.update
+    , subscriptions = subscriptions
+    }

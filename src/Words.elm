@@ -1,4 +1,4 @@
-module Words (getWord, wordCount) where
+module Words exposing (getWord, wordCount)
 
 import Array exposing (Array)
 import Array

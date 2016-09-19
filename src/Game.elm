@@ -1,14 +1,14 @@
-module Game (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Action(Guess, Reset, NoOp), GameStatus(Won, Lost, Playing), update) where
+module Game exposing (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Msg(Guess, Reset, NoOp), GameStatus(Won, Lost, Playing), update)
 
 {-| A hangman game in Elm.
 
 @docs Model
 @docs Letter
 @docs GuessedLetter
-@docs Action
 @docs initialModel
 @docs update
 @docs GameStatus
+@docs Msg
 -}
 
 import Char
@@ -58,28 +58,24 @@ type alias Model = {
     , guessesLeft    : Int
     , guesses        : List Letter
     , gameStatus     : GameStatus
-    , nextSeed       : Random.Seed
     }
 
 
 {-| Create an instance of a Model.
   @param wordToGuess: String = the word the player has to guess.
 -}
-initialModel : Int -> Model
-initialModel seed =
+initialModel : Model
+initialModel =
     let wordCount = Words.wordCount
         generator = Random.int 1 Words.wordCount
-        initSeed = Random.initialSeed seed
-        firstWordIndex = Random.generate generator initSeed
-        wordToGuess = Words.getWord <| fst firstWordIndex
+        wordToGuess = Words.getWord index
     in
     {
       word           = wordToGuess
     , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
     , guessesLeft    = 6
     , guesses        = []
-    , gameStatus     = Playing
-    , nextSeed       = initSeed
+    , gameStatus     = None
     }
 
 
@@ -93,9 +89,9 @@ zip = List.map2 (,)
 
 
 {-| The kinds of action that can be taken. Guess a letter, or reset the game -}
-type Action  = Guess Letter
-             | Reset
-             | NoOp
+type Msg = Guess Letter
+         | Reset Int
+         | NoOp
 
 lettersMatch : (Letter, GuessedLetter) -> Bool
 lettersMatch (letter, guessedLetter) =
@@ -196,15 +192,17 @@ resolveModel model =
                              Won
                            else if noMoreGuesses then
                              Lost
-                           else 
+                           else
                              Playing
     in { model | gameStatus = newGameState }
 
 
 {-| Updates the state of a Model given an action taken -}
-update : Action -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update action model =
-    resolveModel <| case action of
-      Reset        -> initialModel 5
-      Guess letter -> resolveGuess letter model
-      otherwise    -> model
+  let newModel = resolveModel <| case action of
+      Reset newIndex -> initialModel newIndex
+      Guess letter   -> resolveGuess letter model
+      otherwise      -> model
+  in
+    (newModel, Cmd.none)

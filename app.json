@@ -2,7 +2,7 @@
     "name": "Hangman in Elm",		
     "repository": "https://github.com/anicholson/elm-hangman",		
     "env": {		
-        "ELM_COMPILE": "elm make --output elm.js src/App.elm"
+        "ELM_COMPILE": "elm make --output dist/elm.js src/App.elm"
     },		
     "buildpacks": [		
         {		

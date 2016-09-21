@@ -64,22 +64,24 @@ type alias Model = {
 {-| Create an instance of a Model.
   @param wordToGuess: String = the word the player has to guess.
 -}
-initialModel : Model
-initialModel =
-    let wordCount = Words.wordCount
-        generator = Random.int 1 Words.wordCount
-        wordToGuess = Words.getWord index
-    in
-    {
-      word           = wordToGuess
-    , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
-    , guessesLeft    = 6
-    , guesses        = []
-    , gameStatus     = None
-    }
+initialModel : Int -> (Model, Cmd Msg)
+initialModel index =
+  (newModel index, Cmd.none)
 
 
----- UPDATE ----
+newModel : Int -> Model
+newModel index =
+  let wordToGuess = Words.getWord index
+  in
+  {
+    word = wordToGuess
+  , correctGuesses = List.repeat (String.length wordToGuess) Unguessed
+  , guessesLeft    = 6
+  , guesses        = []
+  , gameStatus     = Playing
+  }
+
+    ---- UPDATE ----
 
 -- A description of the kinds of actions that can be performed on the model of
 -- our application.
@@ -200,9 +202,10 @@ resolveModel model =
 {-| Updates the state of a Model given an action taken -}
 update : Msg -> Model -> (Model, Cmd Msg)
 update action model =
-  let newModel = resolveModel <| case action of
-      Reset newIndex -> initialModel newIndex
-      Guess letter   -> resolveGuess letter model
-      otherwise      -> model
+  let postActionModel = case action of
+                          Reset newIndex -> (newModel newIndex)
+                          Guess letter   -> (resolveGuess letter model)
+                          otherwise      -> model
+      resolvedModel = resolveModel postActionModel
   in
-    (newModel, Cmd.none)
+    (resolvedModel, Cmd.none)

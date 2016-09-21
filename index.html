@@ -26,10 +26,10 @@
     <script type="text/javascript">
       ready(function() {
         var gameContainer = document.getElementById('game'),
-            initialSeed   = Math.floor(Math.random() * 1000000000);
- 
+            initialSeed   = Math.floor(Math.random() * 2488);
+
         console.log("initialSeed (JS)", initialSeed);
-        var game = Elm.App.embed(gameContainer, { initialSeed: initialSeed } );
+        var game = Elm.App.embed(gameContainer, initialSeed);
       });
     </script>
   </body>

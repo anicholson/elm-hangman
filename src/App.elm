@@ -15,6 +15,7 @@ port initialSeed : (Int -> msg) -> Sub msg
 guessedLetter : Keyboard.KeyCode -> Msg
 guessedLetter code = Guess (Char.fromCode code)
 
+subscriptions : Game.Model -> Sub Msg
 subscriptions model =
   Sub.batch [
          Keyboard.presses guessedLetter
@@ -23,8 +24,8 @@ subscriptions model =
 
 {-| Bootstrap the app! -}
 main =
-  Application.program
-    { init = (Game.initialModel, Cmd.none)
+  Application.programWithFlags
+    { init = Game.initialModel
     , view = view
     , update = Game.update
     , subscriptions = subscriptions

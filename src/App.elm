@@ -1,6 +1,6 @@
 port module App exposing (..)
 
-import Game exposing (Msg(Guess, NewGame))
+import Game exposing (Msg(NoOp, Guess, NewGame))
 import Views exposing (view)
 
 import Char
@@ -13,7 +13,14 @@ import Json.Decode exposing (int)
 port initialSeed : (Int -> msg) -> Sub msg
 
 guessedLetter : Keyboard.KeyCode -> Msg
-guessedLetter code = Guess (Char.fromCode code)
+guessedLetter code =
+  let char = Char.toLower <| Char.fromCode code
+      valid = Char.isLower char
+  in
+    if valid then
+      Guess char
+    else
+      NoOp
 
 subscriptions : Game.Model -> Sub Msg
 subscriptions model =

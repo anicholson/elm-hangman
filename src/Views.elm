@@ -31,18 +31,24 @@ wordInProgress letters =
       ul [class "word-space"] (List.map (letterToLi << guessToChar) letters)
 
 
+playAgainButton =
+  button [ onClick Game.Reset ] [ text "Play Again!"]
+
+
 lostView : Model -> Html Msg
 lostView model = div [ id "hangman" ] [
                   header [ id "condolence" ] [ h1 [] [ text "Bad luck!" ]]
                  , p [ class "message" ] [ text "You ran out of guesses. The word to guess was:" ]
-                 , p [ class "theActualWord" ] [ text model.word ]]
+                 , p [ class "theActualWord" ] [ text model.word ]
+                 , playAgainButton ]
+
 
 
 wonView : Model -> Html Msg
 wonView model = div [ id "hangman" ] [
                  header [ id "congratulation" ] [ h1 [] [ text "Congratulations!" ]]
                 , p [ class "message" ]  [ text <| "You guessed the word with " ++ toString(model.guessesLeft)  ++ " guesses remaining. Well done!" ]
-                , button [ value "Play Again!", onClick Game.Reset] []
+                , playAgainButton
                 ]
 
 

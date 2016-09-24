@@ -1,4 +1,4 @@
-module Game exposing (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Msg(Guess, Reset, NoOp), GameStatus(Won, Lost, Playing), update)
+module Game exposing (Model, Letter, GuessedLetter(Guessed, Unguessed), initialModel, Msg(Guess, Reset, NoOp, NewGame), GameStatus(Won, Lost, Playing), update)
 
 {-| A hangman game in Elm.
 
@@ -92,7 +92,8 @@ zip = List.map2 (,)
 
 {-| The kinds of action that can be taken. Guess a letter, or reset the game -}
 type Msg = Guess Letter
-         | Reset Int
+         | Reset
+         | NewGame Int
          | NoOp
 
 lettersMatch : (Letter, GuessedLetter) -> Bool
@@ -202,10 +203,11 @@ resolveModel model =
 {-| Updates the state of a Model given an action taken -}
 update : Msg -> Model -> (Model, Cmd Msg)
 update action model =
-  let postActionModel = case action of
-                          Reset newIndex -> (newModel newIndex)
-                          Guess letter   -> (resolveGuess letter model)
-                          otherwise      -> model
-      resolvedModel = resolveModel postActionModel
-  in
-    (resolvedModel, Cmd.none)
+  case action of
+    Reset ->
+      let generator = Random.int 0 Words.wordCount
+      in
+        (model, Random.generate NewGame generator)
+    NewGame newIndex -> (newModel newIndex, Cmd.none)
+    Guess letter   -> (resolveModel <| resolveGuess letter model, Cmd.none)
+    otherwise      -> (model, Cmd.none)

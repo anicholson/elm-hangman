@@ -1,6 +1,6 @@
 port module App exposing (..)
 
-import Game exposing (Msg(Guess, Reset))
+import Game exposing (Msg(Guess, NewGame))
 import Views exposing (view)
 
 import Char
@@ -19,7 +19,7 @@ subscriptions : Game.Model -> Sub Msg
 subscriptions model =
   Sub.batch [
          Keyboard.presses guessedLetter
-       , initialSeed Reset
+       , initialSeed NewGame
        ]
 
 {-| Bootstrap the app! -}

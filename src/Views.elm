@@ -4,7 +4,10 @@ import Game exposing (Msg, Letter, GuessedLetter(..), Model, GameStatus(..))
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import String
+import Random
+import Words
 
 guessList : List Letter -> String
 guessList guesses =
@@ -39,6 +42,7 @@ wonView : Model -> Html Msg
 wonView model = div [ id "hangman" ] [
                  header [ id "congratulation" ] [ h1 [] [ text "Congratulations!" ]]
                 , p [ class "message" ]  [ text <| "You guessed the word with " ++ toString(model.guessesLeft)  ++ " guesses remaining. Well done!" ]
+                , button [ value "Play Again!", onClick Game.Reset] []
                 ]
 
 

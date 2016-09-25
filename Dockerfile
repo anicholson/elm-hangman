@@ -1,32 +1,27 @@
-FROM agrafix/docker-haskell-elm:latest
+FROM codesimple/elm:0.17
 
 MAINTAINER Andy Nicholson <andrew@anicholson.net>
 
+RUN apt-get update
 RUN apt-get install -yy lighttpd
 RUN useradd www
 
-RUN mkdir -p /opt/app/src
-RUN mkdir -p /opt/app/build
+RUN mkdir -p /opt/app
 
-ADD . /opt/app/src
-
-WORKDIR /opt/app/src
-
-RUN elm package install -y
-
-RUN elm make src/App.elm --output ./elm.js
-
-RUN cp ./index.html ../build/
-RUN cp ./style.css ../build/
-RUN cp ./elm.js ../build/
+ADD . /opt/app
 
 WORKDIR /opt/app
 
-RUN chown -R www build
+RUN elm package install -y
 
-RUN lighttpd -t -f src/lighttpd.conf
+RUN elm make src/App.elm --output ./dist/elm.js
+
+WORKDIR /opt/app/dist
+
+RUN chown -R www . 
+
+RUN lighttpd -t -f ../lighttpd.conf
 
 EXPOSE 80
 
-CMD ["lighttpd", "-D", "-f", "src/lighttpd.conf"]
-
+ENTRYPOINT ["lighttpd", "-D", "-f", "/opt/app/lighttpd.conf"]

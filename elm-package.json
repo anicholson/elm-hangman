@@ -1,5 +1,5 @@
 {
-    "version": "2.0.1",
+    "version": "3.0.0",
     "summary": "Hangman written in Elm",
     "repository": "https://github.com/anicholson/elm-hangman.git",
     "license": "BSD3",
@@ -10,10 +10,10 @@
         "Game"
     ],
     "dependencies": {
-        "elm-lang/core": "4.0.0 <= v < 5.0.0",
-        "elm-lang/html": "1.1.0 <= v < 1.2.0",
+        "elm-lang/core": "5.1.1 <= v < 6.0.0",
+        "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/keyboard": "1.0.0 <= v < 2.0.0",
-	"elm-lang/virtual-dom": "1.1.0 <= v < 2.0.0"
+	"elm-lang/virtual-dom": "2.0.4 <= v < 3.0.0"
     },
-    "elm-version": "0.17.0 <= v < 0.18.0"
+    "elm-version": "0.18.0 <= v < 0.19.0"
 }

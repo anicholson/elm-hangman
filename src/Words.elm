@@ -2,7 +2,6 @@ module Words exposing (getWord, wordCount)
 
 import Array exposing (Array)
 import Array
-import Random
 import String exposing (toUpper)
 import Debug exposing (..)
 

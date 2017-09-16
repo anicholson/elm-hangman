@@ -6,8 +6,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import String
-import Random
-import Words
 
 guessList : List Letter -> String
 guessList guesses =
@@ -30,7 +28,7 @@ wordInProgress letters =
     in
       ul [class "word-space"] (List.map (letterToLi << guessToChar) letters)
 
-
+playAgainButton : Html Msg
 playAgainButton =
   button [ onClick Game.Reset ] [ text "Play Again!"]
 

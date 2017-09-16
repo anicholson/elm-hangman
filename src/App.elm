@@ -1,16 +1,13 @@
-port module App exposing (..)
+module App exposing (..)
 
 import Game exposing (Msg(NoOp, Guess, NewGame))
 import Views exposing (view)
 
 import Char
 import Keyboard
-import Html.App as Application
-import Json.Decode exposing (int)
+import Html
 
 -- manage the model of our application over time
-
-port initialSeed : (Int -> msg) -> Sub msg
 
 guessedLetter : Keyboard.KeyCode -> Msg
 guessedLetter code =
@@ -26,12 +23,12 @@ subscriptions : Game.Model -> Sub Msg
 subscriptions model =
   Sub.batch [
          Keyboard.presses guessedLetter
-       , initialSeed NewGame
        ]
 
 {-| Bootstrap the app! -}
+main : Program Int Game.Model Msg
 main =
-  Application.programWithFlags
+  Html.programWithFlags
     { init = Game.initialModel
     , view = view
     , update = Game.update

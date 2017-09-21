@@ -1,0 +1,16 @@
+body {
+  font-family: 'Comfortaa', sans-serif;
+}
+
+ul.word-space {
+  font-family: 'Anonymous Pro', monospace;
+  font-size: 64px;
+  display: inline-block;
+
+  list-style: none;
+}
+
+ul.word-space li {
+  display: inline;
+  padding: 10px 5px;
+}

@@ -1,36 +1,47 @@
-module App exposing (..)
-
-import Game exposing (Msg(NoOp, Guess, NewGame))
-import Views exposing (view)
+module App exposing (main)
 
 import Char
-import Keyboard
-import Html
+import Game exposing (Msg(..))
+import Browser
+import Browser.Events
+import Views exposing (view)
+import Json.Decode as Decode
+
 
 -- manage the model of our application over time
 
-guessedLetter : Keyboard.KeyCode -> Msg
-guessedLetter code =
-  let char = Char.toLower <| Char.fromCode code
-      valid = Char.isLower char
-  in
-    if valid then
-      Guess char
-    else
-      NoOp
+
+guessedLetterDecoder : Decode.Decoder Msg
+guessedLetterDecoder =
+    Decode.map toMsg (Decode.field "key" Decode.string)
+
+
+toMsg : String -> Msg
+toMsg string =
+    case String.uncons string of
+        Just (char, "") ->
+            if Char.isLower char then
+                Guess char
+            else
+                NoOp
+        _ ->
+            NoOp 
+
 
 subscriptions : Game.Model -> Sub Msg
 subscriptions model =
-  Sub.batch [
-         Keyboard.presses guessedLetter
-       ]
+    Sub.batch
+        [ Browser.Events.onKeyPress guessedLetterDecoder
+        ]
 
-{-| Bootstrap the app! -}
+
+{-| Bootstrap the app!
+-}
 main : Program Int Game.Model Msg
 main =
-  Html.programWithFlags
-    { init = Game.initialModel
-    , view = view
-    , update = Game.update
-    , subscriptions = subscriptions
-    }
+    Browser.element
+        { init = Game.initialModel
+        , view = view
+        , update = Game.update
+        , subscriptions = subscriptions
+        }

@@ -1,14 +1,13 @@
 module Words exposing (getWord, wordCount)
 
 import Array exposing (Array)
-import Array
+import Debug
 import String exposing (toUpper)
-import Debug exposing (..)
 
 
 wordCount : Int
 wordCount =
-    (Array.length words) - 1
+    Array.length words - 1
 
 
 getWord : Int -> String
@@ -17,21 +16,24 @@ getWord index =
         i =
             Debug.log "Index: " index
     in
-        if isNaN <| toFloat i then
-            crash "WTF"
-        else if i < 0 then
-            crash "Negative!"
-        else
-            let
-                w =
-                    Debug.log "Word: " (Array.get i words)
-            in
-                case w of
-                    Just word ->
-                        toUpper word
+    if isNaN <| toFloat i then
+        -- Was crash
+        "crash:WTF"
 
-                    Nothing ->
-                        getWord <| i - 1
+    else if i < 0 then
+        "crash:Negative!"
+
+    else
+        let
+            w =
+                Debug.log "Word: " (Array.get i words)
+        in
+        case w of
+            Just word ->
+                toUpper word
+
+            Nothing ->
+                getWord <| i - 1
 
 
 words : Array String
